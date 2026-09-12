@@ -1,7 +1,9 @@
 """
 ПР1. Сервис отслеживания ремонта устройств.
 Начальный сценарий: регистрация заявки, расчёт стоимости и определение статуса.
+
 Используются только простые типы данных, ветвления, функции и импорт модулей.
+Коллекции, циклы и классы — на ПР2.
 """
 
 from datetime import date
@@ -11,12 +13,6 @@ from datetime import date
 
 BASE_PRICE = 1000.0          # базовая стоимость диагностики, руб.
 URGENT_MULTIPLIER = 1.5      # коэффициент срочности
-DEVICE_COEFFICIENTS = {      # в ПР2 заменим на коллекцию, пока — условная логика
-    "ноутбук": 1.3,
-    "смартфон": 1.0,
-    "планшет": 1.1,
-    "телевизор": 1.4,
-}
 
 
 def calculate_repair_cost(device_type: str, is_urgent: bool) -> float:
@@ -29,6 +25,9 @@ def calculate_repair_cost(device_type: str, is_urgent: bool) -> float:
     """
     device_type = device_type.strip().lower()
 
+    # --- ОТЛАДКА: breakpoint №1 ---
+    # Поставьте точку останова на строку ниже и посмотрите,
+    # какое значение приходит в device_type после strip().lower()
     if device_type == "ноутбук":
         coefficient = 1.3
     elif device_type == "смартфон":
@@ -40,11 +39,19 @@ def calculate_repair_cost(device_type: str, is_urgent: bool) -> float:
     else:
         coefficient = 1.0  # неизвестный тип — базовая стоимость
 
-    cost = BASE_PRICE * coefficient
+    # --- ОТЛАДКА: breakpoint №2 ---
+    # Поставьте точку останова здесь и проверьте значение coefficient.
+    # ВНИМАНИЕ: ниже специально внесена ошибка для упражнения по отладке.
+    # Правильная формула: cost = BASE_PRICE * coefficient
+    # Ошибочная формула:  cost = BASE_PRICE + coefficient
+    cost = BASE_PRICE * coefficient  # <-- здесь для отладки можно заменить * на +
 
     if is_urgent:
         cost = cost * URGENT_MULTIPLIER
 
+    # --- ОТЛАДКА: breakpoint №3 ---
+    # Поставьте точку останова здесь и посмотрите итоговое значение cost
+    # перед возвратом из функции.
     return round(cost, 2)
 
 
@@ -55,6 +62,8 @@ def get_request_status(status_code: int) -> str:
     :param status_code: код статуса (int)
     :return: описание статуса (str)
     """
+    # --- ОТЛАДКА: breakpoint №4 ---
+    # Поставьте точку останова здесь и посмотрите, какой код статуса пришёл.
     if status_code == 1:
         return "Принята"
     elif status_code == 2:
@@ -84,13 +93,24 @@ def create_repair_request(
     :param is_urgent: срочность ремонта
     :return: строка с описанием заявки
     """
+    # --- ОТЛАДКА: breakpoint №5 ---
+    # Поставьте точку останова в начале функции и пошагово (Step Over)
+    # пройдите весь сценарий, следя за значениями переменных.
     if not client_name.strip():
         return "Ошибка: не указано имя клиента."
 
     if not device_type.strip() or not device_model.strip():
         return "Ошибка: не указаны тип или модель устройства."
 
+    # --- ОТЛАДКА: breakpoint №6 ---
+    # Поставьте точку останова на строку ниже.
+    # Нажмите Step Into (F7), чтобы зайти внутрь calculate_repair_cost
+    # и посмотреть, как считается стоимость.
     cost = calculate_repair_cost(device_type, is_urgent)
+
+    # --- ОТЛАДКА: breakpoint №7 ---
+    # Поставьте точку останова здесь и проверьте значение cost,
+    # которое вернула функция calculate_repair_cost.
     status = get_request_status(1)  # новая заявка всегда «Принята»
     today = date.today()
 
