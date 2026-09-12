@@ -113,7 +113,7 @@ def create_repair_request(
     # которое вернула функция calculate_repair_cost.
     status = get_request_status(1)  # новая заявка всегда «Принята»
     today = date.today()
-
+    
     urgency_text = "срочный" if is_urgent else "обычный"
 
     return (
