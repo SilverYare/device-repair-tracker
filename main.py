@@ -1,151 +1,149 @@
-"""
-ПР1. Сервис отслеживания ремонта устройств.
-Начальный сценарий: регистрация заявки, расчёт стоимости и определение статуса.
+"""Сервис отслеживания ремонта устройств. Точка входа."""
 
-Используются только простые типы данных, ветвления, функции и импорт модулей.
-Коллекции, циклы и классы — на ПР2.
-"""
+from storage import load_json, save_json
+from devices import (
+    add_device,
+    find_device_by_id,
+    find_devices_by_client,
+    filter_devices_by_type,
+    sort_devices_by_client,
+)
+from masters import (
+    add_master,
+    find_master_by_id,
+    find_masters_by_specialization,
+)
+from requests import (
+    create_request,
+    assign_master,
+    change_status,
+    get_request_status,
+    filter_requests_by_status,
+    sort_requests_by_cost,
+    get_master_workload,
+)
+from utils import input_int, input_bool
 
-from datetime import date
-
-
-# --- Справочные данные (простые типы) ---
-
-BASE_PRICE = 1000.0          # базовая стоимость диагностики, руб.
-URGENT_MULTIPLIER = 1.5      # коэффициент срочности
-
-
-def calculate_repair_cost(device_type: str, is_urgent: bool) -> float:
-    """
-    Рассчитывает предварительную стоимость ремонта.
-
-    :param device_type: тип устройства (строка)
-    :param is_urgent: срочный ли ремонт (bool)
-    :return: стоимость ремонта (float)
-    """
-    device_type = device_type.strip().lower()
-
-    # --- ОТЛАДКА: breakpoint №1 ---
-    # Поставьте точку останова на строку ниже и посмотрите,
-    # какое значение приходит в device_type после strip().lower()
-    if device_type == "ноутбук":
-        coefficient = 1.3
-    elif device_type == "смартфон":
-        coefficient = 1.0
-    elif device_type == "планшет":
-        coefficient = 1.1
-    elif device_type == "телевизор":
-        coefficient = 1.4
-    else:
-        coefficient = 1.0  # неизвестный тип — базовая стоимость
-
-    # --- ОТЛАДКА: breakpoint №2 ---
-    # Поставьте точку останова здесь и проверьте значение coefficient.
-    # ВНИМАНИЕ: ниже специально внесена ошибка для упражнения по отладке.
-    # Правильная формула: cost = BASE_PRICE * coefficient
-    # Ошибочная формула:  cost = BASE_PRICE + coefficient
-    cost = BASE_PRICE * coefficient  # <-- здесь для отладки можно заменить * на +
-
-    if is_urgent:
-        cost = cost * URGENT_MULTIPLIER
-
-    # --- ОТЛАДКА: breakpoint №3 ---
-    # Поставьте точку останова здесь и посмотрите итоговое значение cost
-    # перед возвратом из функции.
-    return round(cost, 2)
+DEVICES_FILE = "data/devices.json"
+MASTERS_FILE = "data/masters.json"
+REQUESTS_FILE = "data/requests.json"
 
 
-def get_request_status(status_code: int) -> str:
-    """
-    Возвращает текстовое описание статуса заявки по коду.
-
-    :param status_code: код статуса (int)
-    :return: описание статуса (str)
-    """
-    # --- ОТЛАДКА: breakpoint №4 ---
-    # Поставьте точку останова здесь и посмотрите, какой код статуса пришёл.
-    if status_code == 1:
-        return "Принята"
-    elif status_code == 2:
-        return "Диагностика"
-    elif status_code == 3:
-        return "В ремонте"
-    elif status_code == 4:
-        return "Готова к выдаче"
-    elif status_code == 5:
-        return "Выдана"
-    else:
-        return "Неизвестный статус"
+def show_devices(devices: list[dict]) -> None:
+    """Вывести список устройств."""
+    if not devices:
+        print("Устройства не найдены.")
+        return
+    for device in devices:
+        print(
+            f"[{device['id']}] {device['client_name']} — "
+            f"{device['device_type']} {device['model']} "
+            f"(SN: {device['serial_number']})"
+        )
 
 
-def create_repair_request(
-    client_name: str,
-    device_type: str,
-    device_model: str,
-    is_urgent: bool,
-) -> str:
-    """
-    Формирует текстовое описание заявки на ремонт.
-
-    :param client_name: ФИО клиента
-    :param device_type: тип устройства
-    :param device_model: модель устройства
-    :param is_urgent: срочность ремонта
-    :return: строка с описанием заявки
-    """
-    # --- ОТЛАДКА: breakpoint №5 ---
-    # Поставьте точку останова в начале функции и пошагово (Step Over)
-    # пройдите весь сценарий, следя за значениями переменных.
-    if not client_name.strip():
-        return "Ошибка: не указано имя клиента."
-
-    if not device_type.strip() or not device_model.strip():
-        return "Ошибка: не указаны тип или модель устройства."
-
-    cost = calculate_repair_cost(device_type, is_urgent)
-
-    today = date.today()
-
-    urgency_text = "срочный" if is_urgent else "обычный"
-
-    return (
-        f"Заявка от {today}\n"
-        f"Клиент: {client_name}\n"
-        f"Устройство: {device_type} {device_model}\n"
-        f"Тип ремонта: {urgency_text}\n"
-        f"Предварительная стоимость: {cost} руб.\n"
-        f"Статус: {status}"
-    )
+def show_requests(requests: list[dict]) -> None:
+    """Вывести список заявок."""
+    if not requests:
+        print("Заявки не найдены.")
+        return
+    for request in requests:
+        status = get_request_status(request["status_code"])
+        print(
+            f"[{request['id']}] устройство #{request['device_id']}, "
+            f"мастер: {request['master_id']}, "
+            f"статус: {status}, стоимость: {request['cost']} руб."
+        )
 
 
-# --- Демонстрация работы сценария ---
+def show_masters(masters: list[dict]) -> None:
+    """Вывести список мастеров."""
+    if not masters:
+        print("Мастера не найдены.")
+        return
+    for master in masters:
+        print(
+            f"[{master['id']}] {master['name']} — "
+            f"{master['specialization']}"
+        )
+
+
+def main() -> None:
+    """Основной цикл меню приложения."""
+    devices = load_json(DEVICES_FILE)
+    masters = load_json(MASTERS_FILE)
+    requests = load_json(REQUESTS_FILE)
+
+    while True:
+        print("\n=== Сервис отслеживания ремонта устройств ===")
+        print("1. Показать устройства")
+        print("2. Найти устройства по клиенту")
+        print("3. Отобрать устройства по типу")
+        print("4. Показать мастеров")
+        print("5. Создать заявку на ремонт")
+        print("6. Назначить мастера на заявку")
+        print("7. Изменить статус заявки")
+        print("8. Показать заявки")
+        print("9. Загрузка мастера")
+        print("0. Выход")
+
+        choice = input("Выберите действие: ").strip()
+
+        if choice == "1":
+            show_devices(sort_devices_by_client(devices))
+        elif choice == "2":
+            query = input("Подстрока имени клиента: ")
+            show_devices(find_devices_by_client(devices, query))
+        elif choice == "3":
+            device_type = input("Тип устройства: ")
+            show_devices(filter_devices_by_type(devices, device_type))
+        elif choice == "4":
+            show_masters(masters)
+        elif choice == "5":
+            device_id = input_int("ID устройства: ")
+            device = find_device_by_id(devices, device_id)
+            if device is None:
+                print("Устройство не найдено.")
+                continue
+            is_urgent = input_bool("Срочный ремонт? (да/нет): ")
+            request = create_request(
+                requests,
+                device_id,
+                device["device_type"],
+                is_urgent,
+            )
+            print(f"Создана заявка #{request['id']}, "
+                  f"стоимость: {request['cost']} руб.")
+        elif choice == "6":
+            request_id = input_int("ID заявки: ")
+            master_id = input_int("ID мастера: ")
+            if assign_master(requests, request_id, master_id):
+                print("Мастер назначен.")
+            else:
+                print("Заявка или мастер не найдены.")
+        elif choice == "7":
+            request_id = input_int("ID заявки: ")
+            status_code = input_int("Новый статус (1–5): ")
+            if change_status(requests, request_id, status_code):
+                print("Статус изменён.")
+            else:
+                print("Не удалось изменить статус.")
+        elif choice == "8":
+            show_requests(sort_requests_by_cost(requests))
+        elif choice == "9":
+            master_id = input_int("ID мастера: ")
+            load = get_master_workload(requests, master_id)
+            print(f"Активных заявок у мастера: {load}")
+        elif choice == "0":
+            break
+        else:
+            print("Неизвестная команда.")
+
+    save_json(DEVICES_FILE, devices)
+    save_json(MASTERS_FILE, masters)
+    save_json(REQUESTS_FILE, requests)
+    print("Данные сохранены. До свидания!")
+
 
 if __name__ == "__main__":
-    print("=== Сервис отслеживания ремонта устройств ===")
-    print()
-
-    # Пример 1: обычный ремонт ноутбука
-    print(create_repair_request(
-        client_name="Иванов Иван Иванович",
-        device_type="ноутбук",
-        device_model="Lenovo IdeaPad 5",
-        is_urgent=False,
-    ))
-    print()
-
-    # Пример 2: срочный ремонт смартфона
-    print(create_repair_request(
-        client_name="Петрова Анна Сергеевна",
-        device_type="смартфон",
-        device_model="Samsung Galaxy S23",
-        is_urgent=True,
-    ))
-    print()
-
-    # Пример 3: проверка обработки ошибки
-    print(create_repair_request(
-        client_name="",
-        device_type="планшет",
-        device_model="iPad Air",
-        is_urgent=False,
-    ))
+    main()
