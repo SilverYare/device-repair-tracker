@@ -102,18 +102,10 @@ def create_repair_request(
     if not device_type.strip() or not device_model.strip():
         return "Ошибка: не указаны тип или модель устройства."
 
-    # --- ОТЛАДКА: breakpoint №6 ---
-    # Поставьте точку останова на строку ниже.
-    # Нажмите Step Into (F7), чтобы зайти внутрь calculate_repair_cost
-    # и посмотреть, как считается стоимость.
     cost = calculate_repair_cost(device_type, is_urgent)
 
-    # --- ОТЛАДКА: breakpoint №7 ---
-    # Поставьте точку останова здесь и проверьте значение cost,
-    # которое вернула функция calculate_repair_cost.
-    status = get_request_status(1)  # новая заявка всегда «Принята»
     today = date.today()
-    
+
     urgency_text = "срочный" if is_urgent else "обычный"
 
     return (
