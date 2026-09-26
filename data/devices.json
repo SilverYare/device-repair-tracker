@@ -1,0 +1,23 @@
+[
+    {
+        "id": 1,
+        "client_name": "Иванов Иван Иванович",
+        "device_type": "ноутбук",
+        "model": "Lenovo IdeaPad 5",
+        "serial_number": "NB-0001"
+    },
+    {
+        "id": 2,
+        "client_name": "Петрова Анна Сергеевна",
+        "device_type": "смартфон",
+        "model": "Samsung Galaxy S23",
+        "serial_number": "SM-0002"
+    },
+    {
+        "id": 3,
+        "client_name": "Смирнов Олег Петрович",
+        "device_type": "планшет",
+        "model": "iPad Air",
+        "serial_number": "TB-0003"
+    }
+]
