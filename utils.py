@@ -1,10 +1,19 @@
-"""Вспомогательные функции ввода с обработкой ошибок."""
+"""Вспомогательные функции безопасного ввода."""
 
 from datetime import date
 
 
+def input_str(prompt: str) -> str:
+    """Запросить непустую строку."""
+    while True:
+        value = input(prompt).strip()
+        if value:
+            return value
+        print("Ошибка: значение не может быть пустым.")
+
+
 def input_int(prompt: str) -> int:
-    """Запросить у пользователя целое число; повторять при ошибке."""
+    """Запросить целое число."""
     while True:
         try:
             return int(input(prompt))
@@ -13,7 +22,7 @@ def input_int(prompt: str) -> int:
 
 
 def input_float(prompt: str) -> float:
-    """Запросить у пользователя число с плавающей точкой."""
+    """Запросить число с плавающей точкой."""
     while True:
         try:
             return float(input(prompt))
@@ -22,7 +31,7 @@ def input_float(prompt: str) -> float:
 
 
 def input_bool(prompt: str) -> bool:
-    """Запросить у пользователя да/нет."""
+    """Запросить да/нет."""
     while True:
         answer = input(prompt).strip().lower()
         if answer in ("да", "д", "yes", "y"):
@@ -35,9 +44,8 @@ def input_bool(prompt: str) -> bool:
 def input_date(prompt: str) -> date:
     """Запросить дату в формате ДД.ММ.ГГГГ."""
     while True:
-        raw = input(prompt).strip()
         try:
-            day, month, year = raw.split(".")
+            day, month, year = input(prompt).strip().split(".")
             return date(int(year), int(month), int(day))
         except (ValueError, AttributeError):
-            print("Ошибка: введите дату в формате ДД.ММ.ГГГГ.")
+            print("Ошибка: формат ДД.ММ.ГГГГ.")
