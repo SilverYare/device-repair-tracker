@@ -1,6 +1,6 @@
 """Сервис отслеживания ремонта устройств. Точка входа."""
 
-from models.storage import load_json, save_json
+from storage import load_json, save_json
 from models.devices import (
     add_device,
     find_device_by_id,
