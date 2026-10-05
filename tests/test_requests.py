@@ -1,50 +1,74 @@
-"""Тесты функций работы с заявками."""
+"""Тесты заявок и функций работы с ними."""
 
+from models.client import Client
+from models.device import Laptop
+from models.master import Master
+from models.request import Request
 from models.requests import (
-    calculate_repair_cost,
-    get_request_status,
-    create_request,
     assign_master,
     change_status,
+    create_request,
     get_master_workload,
+    sort_requests_by_cost,
 )
+from models.status import RequestStatus
 
 
-def test_calculate_repair_cost():
-    assert calculate_repair_cost("ноутбук", False) == 1300.0
-    assert calculate_repair_cost("смартфон", True) == 1500.0
-    assert calculate_repair_cost("неизвестно", False) == 1000.0
+def make_fixtures():
+    laptop = Laptop(1, "Lenovo", "NB-1")
+    client = Client(1, "Иван", "+7-900", "ivan@example.com")
+    master = Master(1, "Пётр", "+7-900", "ноутбуки")
+    return laptop, client, master
 
 
-def test_get_request_status():
-    assert get_request_status(1) == "Принята"
-    assert get_request_status(5) == "Выдана"
-    assert get_request_status(99) == "Неизвестный статус"
+def test_request_creation():
+    laptop, client, _ = make_fixtures()
+    request = Request(1, laptop, client, is_urgent=False)
+    assert request.id == 1
+    assert request.device is laptop
+    assert request.client is client
+    assert request.status == RequestStatus.ACCEPTED
+    assert request.cost == 1300.0
 
 
-def test_create_request():
+def test_assign_master():
+    laptop, client, master = make_fixtures()
+    request = Request(1, laptop, client)
+    request.assign_master(master)
+    assert request.master is master
+
+
+def test_change_status():
+    laptop, client, _ = make_fixtures()
+    request = Request(1, laptop, client)
+    request.change_status(RequestStatus.IN_REPAIR)
+    assert request.status == RequestStatus.IN_REPAIR
+
+
+def test_create_and_assign_via_functions():
+    laptop, client, master = make_fixtures()
     requests = []
-    request = create_request(requests, device_id=1, device_type="ноутбук",
-                             is_urgent=False)
+    create_request(requests, 1, laptop, client, is_urgent=False)
     assert len(requests) == 1
-    assert request["id"] == 1
-    assert request["cost"] == 1300.0
-
-
-def test_assign_master_and_change_status():
-    requests = []
-    create_request(requests, 1, "ноутбук", False)
-    assert assign_master(requests, 1, 5) is True
-    assert requests[0]["master_id"] == 5
-    assert change_status(requests, 1, 3) is True
-    assert requests[0]["status_code"] == 3
+    assert assign_master(requests, 1, master)
+    assert requests[0].master is master
 
 
 def test_get_master_workload():
+    laptop, client, master = make_fixtures()
     requests = []
-    create_request(requests, 1, "ноутбук", False)
-    create_request(requests, 2, "смартфон", False)
-    assign_master(requests, 1, 1)
-    assign_master(requests, 2, 1)
-    change_status(requests, 2, 5)  # выдана — не активная
-    assert get_master_workload(requests, 1) == 1
+    create_request(requests, 1, laptop, client)
+    create_request(requests, 2, laptop, client)
+    assign_master(requests, 1, master)
+    assign_master(requests, 2, master)
+    change_status(requests, 2, RequestStatus.ISSUED)
+    assert get_master_workload(requests, master) == 1
+
+
+def test_sort_requests_by_cost():
+    laptop, client, _ = make_fixtures()
+    requests = []
+    r1 = create_request(requests, 1, laptop, client, is_urgent=True)
+    r2 = create_request(requests, 2, laptop, client, is_urgent=False)
+    sorted_requests = sort_requests_by_cost(requests)
+    assert sorted_requests[0].cost <= sorted_requests[1].cost
