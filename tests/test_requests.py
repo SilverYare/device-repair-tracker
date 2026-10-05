@@ -1,6 +1,6 @@
 """Тесты функций работы с заявками."""
 
-from requests import (
+from models.requests import (
     calculate_repair_cost,
     get_request_status,
     create_request,

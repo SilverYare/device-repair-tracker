@@ -1,6 +1,6 @@
 """Тесты функций работы с устройствами."""
 
-from devices import (
+from models.devices import (
     add_device,
     find_device_by_id,
     find_devices_by_client,

@@ -1,19 +1,19 @@
 """Сервис отслеживания ремонта устройств. Точка входа."""
 
-from storage import load_json, save_json
-from devices import (
+from models.storage import load_json, save_json
+from models.devices import (
     add_device,
     find_device_by_id,
     find_devices_by_client,
     filter_devices_by_type,
     sort_devices_by_client,
 )
-from masters import (
+from models.masters import (
     add_master,
     find_master_by_id,
     find_masters_by_specialization,
 )
-from requests import (
+from models.requests import (
     create_request,
     assign_master,
     change_status,
