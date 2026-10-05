@@ -1,29 +1,42 @@
-"""Функции для работы с мастерами."""
+"""Функции работы с коллекцией мастеров."""
 
 from typing import Optional
 
+from .master import Master
 
-def add_master(masters: list[dict], name: str, specialization: str) -> dict:
-    """Добавить мастера в список."""
-    new_id = max((m["id"] for m in masters), default=0) + 1
-    master = {"id": new_id, "name": name, "specialization": specialization}
+
+def add_master(
+    masters: list[Master],
+    master_id: int,
+    name: str,
+    phone: str,
+    specialization: str,
+) -> Master:
+    """Создать мастера и добавить в коллекцию."""
+    master = Master(master_id, name, phone, specialization)
     masters.append(master)
     return master
 
 
-def find_master_by_id(masters: list[dict], master_id: int) -> Optional[dict]:
+def find_master_by_id(
+    masters: list[Master], master_id: int
+) -> Optional[Master]:
     """Найти мастера по id."""
-    for master in masters:
-        if master["id"] == master_id:
-            return master
-    return None
+    return next((m for m in masters if m.id == master_id), None)
 
 
 def find_masters_by_specialization(
-    masters: list[dict], specialization: str
-) -> list[dict]:
+    masters: list[Master], specialization: str
+) -> list[Master]:
     """Найти мастеров по специализации."""
-    specialization = specialization.strip().lower()
-    return [
-        m for m in masters if m["specialization"].lower() == specialization
-    ]
+    spec = specialization.strip().lower()
+    return [m for m in masters if m.specialization.lower() == spec]
+
+
+def show_masters(masters: list[Master]) -> None:
+    """Вывод списка мастеров."""
+    if not masters:
+        print("Мастера не найдены.")
+        return
+    for master in masters:
+        print(master)
