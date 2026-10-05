@@ -1,118 +1,89 @@
-"""Функции для работы с заявками на ремонт."""
+"""Функции работы с коллекцией заявок."""
 
 from typing import Optional
 
-BASE_PRICE = 1000.0
-URGENT_MULTIPLIER = 1.5
-
-
-def calculate_repair_cost(device_type: str, is_urgent: bool) -> float:
-    """Рассчитать предварительную стоимость ремонта."""
-    device_type = device_type.strip().lower()
-
-    if device_type == "ноутбук":
-        coefficient = 1.3
-    elif device_type == "смартфон":
-        coefficient = 1.0
-    elif device_type == "планшет":
-        coefficient = 1.1
-    elif device_type == "телевизор":
-        coefficient = 1.4
-    else:
-        coefficient = 1.0
-
-    cost = BASE_PRICE * coefficient
-    if is_urgent:
-        cost *= URGENT_MULTIPLIER
-    return round(cost, 2)
-
-
-def get_request_status(status_code: int) -> str:
-    """Вернуть текстовый статус заявки по коду (функция из ПР1)."""
-    if status_code == 1:
-        return "Принята"
-    elif status_code == 2:
-        return "Диагностика"
-    elif status_code == 3:
-        return "В ремонте"
-    elif status_code == 4:
-        return "Готова к выдаче"
-    elif status_code == 5:
-        return "Выдана"
-    return "Неизвестный статус"
+from .client import Client
+from .device import Device
+from .master import Master
+from .request import Request
+from .status import RequestStatus
 
 
 def create_request(
-    requests: list[dict],
-    device_id: int,
-    device_type: str,
-    is_urgent: bool,
-    master_id: Optional[int] = None,
-) -> dict:
-    """Создать заявку на ремонт."""
-    new_id = max((r["id"] for r in requests), default=0) + 1
-    request = {
-        "id": new_id,
-        "device_id": device_id,
-        "master_id": master_id,
-        "status_code": 1,
-        "is_urgent": is_urgent,
-        "cost": calculate_repair_cost(device_type, is_urgent),
-    }
+    requests: list[Request],
+    request_id: int,
+    device: Device,
+    client: Client,
+    is_urgent: bool = False,
+) -> Request:
+    """Создать заявку и добавить в коллекцию."""
+    request = Request(request_id, device, client, is_urgent)
     requests.append(request)
     return request
 
 
-def find_request_by_id(requests: list[dict], request_id: int) -> Optional[dict]:
+def find_request_by_id(
+    requests: list[Request], request_id: int
+) -> Optional[Request]:
     """Найти заявку по id."""
-    for request in requests:
-        if request["id"] == request_id:
-            return request
-    return None
+    return next((r for r in requests if r.id == request_id), None)
 
 
 def assign_master(
-    requests: list[dict], request_id: int, master_id: int
+    requests: list[Request], request_id: int, master: Master
 ) -> bool:
-    """Назначить мастера на заявку. Вернуть True при успехе."""
+    """Назначить мастера на заявку."""
     request = find_request_by_id(requests, request_id)
     if request is None:
         return False
-    request["master_id"] = master_id
+    request.assign_master(master)
     return True
 
 
 def change_status(
-    requests: list[dict], request_id: int, new_status_code: int
+    requests: list[Request], request_id: int, new_status: RequestStatus
 ) -> bool:
-    """Изменить статус заявки. Вернуть True при успехе."""
-    if new_status_code not in (1, 2, 3, 4, 5):
-        return False
+    """Изменить статус заявки."""
     request = find_request_by_id(requests, request_id)
     if request is None:
         return False
-    request["status_code"] = new_status_code
+    request.change_status(new_status)
     return True
 
 
 def filter_requests_by_status(
-    requests: list[dict], status_code: int
-) -> list[dict]:
-    """Отобрать заявки по статусу."""
-    return [r for r in requests if r["status_code"] == status_code]
+    requests: list[Request], status: RequestStatus
+) -> list[Request]:
+    """Фильтр по статусу."""
+    return [r for r in requests if r.status == status]
 
 
 def sort_requests_by_cost(
-    requests: list[dict], descending: bool = False
-) -> list[dict]:
-    """Отсортировать заявки по стоимости."""
-    return sorted(requests, key=lambda r: r["cost"], reverse=descending)
+    requests: list[Request], descending: bool = False
+) -> list[Request]:
+    """Сортировка по стоимости (lambda)."""
+    return sorted(requests, key=lambda r: r.cost, reverse=descending)
 
 
-def get_master_workload(requests: list[dict], master_id: int) -> int:
-    """Количество активных заявок мастера (статусы 1–3)."""
+def get_master_workload(
+    requests: list[Request], master: Master
+) -> int:
+    """Количество активных заявок у мастера."""
+    active = {
+        RequestStatus.ACCEPTED,
+        RequestStatus.DIAGNOSTICS,
+        RequestStatus.IN_REPAIR,
+    }
     return sum(
-        1
-        for r in requests
-        if r["master_id"] == master_id and r["status_code"] in (1, 2, 3)
+        1 for r in requests
+        if r.master is master and r.status in active
     )
+
+
+def show_requests(requests: list[Request]) -> None:
+    """Вывод списка заявок."""
+    if not requests:
+        print("Заявки не найдены.")
+        return
+    for request in requests:
+        print(request)
