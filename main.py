@@ -1,4 +1,4 @@
-﻿"""Сервис отслеживания ремонта устройств. Точка входа."""
+"""Сервис отслеживания ремонта устройств. Точка входа."""
 
 from decorators import log_action
 from domain import (
@@ -22,7 +22,6 @@ from domain.requests import (
     assign_master,
     change_status,
     create_request,
-    find_request_by_id,
     get_master_workload,
     show_requests,
     sort_requests_by_cost,

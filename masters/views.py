@@ -1,4 +1,4 @@
-﻿"""View-функции для мастеров."""
+"""View-функции для мастеров."""
 
 from django.http import HttpResponse
 

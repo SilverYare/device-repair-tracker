@@ -1,4 +1,4 @@
-﻿"""Тесты заявок и функций работы с ними."""
+"""Тесты заявок и функций работы с ними."""
 
 from domain.client import Client
 from domain.device import Laptop
@@ -68,7 +68,7 @@ def test_get_master_workload():
 def test_sort_requests_by_cost():
     laptop, client, _ = make_fixtures()
     requests = []
-    r1 = create_request(requests, 1, laptop, client, is_urgent=True)
-    r2 = create_request(requests, 2, laptop, client, is_urgent=False)
+    create_request(requests, 1, laptop, client, is_urgent=True)
+    create_request(requests, 2, laptop, client, is_urgent=False)
     sorted_requests = sort_requests_by_cost(requests)
     assert sorted_requests[0].cost <= sorted_requests[1].cost

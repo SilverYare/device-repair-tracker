@@ -1,4 +1,4 @@
-﻿"""View-функции для устройств."""
+"""View-функции для устройств."""
 
 from django.http import HttpResponse
 

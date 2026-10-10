@@ -55,6 +55,7 @@ def show_devices(devices: list[Device]) -> None:
     for device in devices:
         print(device)
 
+
 def filter_devices_by_type(
     devices: list[Device], device_type: str
 ) -> list[Device]:

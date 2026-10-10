@@ -1,4 +1,4 @@
-﻿"""Пакет классов предметной области."""
+"""Пакет классов предметной области."""
 
 from domain.person import Person
 from domain.client import Client
@@ -19,4 +19,3 @@ __all__ = [
     "RequestStatus",
     "Request",
 ]
-

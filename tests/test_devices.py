@@ -1,4 +1,4 @@
-﻿"""Тесты устройств и функций работы с ними."""
+"""Тесты устройств и функций работы с ними."""
 
 from domain.device import Laptop, Smartphone, Tablet, TV
 from domain.devices import (

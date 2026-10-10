@@ -1,4 +1,4 @@
-﻿"""View-функции для заявок на ремонт."""
+"""View-функции для заявок на ремонт."""
 
 from django.http import HttpResponse
 
