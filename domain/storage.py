@@ -4,7 +4,10 @@ import json
 import os
 from typing import Any
 
-from domain import Client, Device, Master, Request
+from .client import Client
+from .device import Device
+from .master import Master
+from .request import Request
 
 
 def load_json(filename: str) -> list[dict[str, Any]]:
