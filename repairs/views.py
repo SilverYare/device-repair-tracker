@@ -1,11 +1,11 @@
-"""View-функции для заявок на ремонт."""
+﻿"""View-функции для заявок на ремонт."""
 
 from django.http import HttpResponse
 
 from homepage.views import page
-from models.request import Request
-from models.requests import find_request_by_id
-from models.storage import (
+from domain.request import Request
+from domain.requests import find_request_by_id
+from domain.storage import (
     load_clients,
     load_devices,
     load_masters,

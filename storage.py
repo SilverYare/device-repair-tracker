@@ -1,10 +1,10 @@
-"""Загрузка и сохранение данных в JSON."""
+﻿"""Загрузка и сохранение данных в JSON."""
 
 import json
 import os
 from typing import Any
 
-from models import Client, Device, Master, Request
+from domain import Client, Device, Master, Request
 
 
 def load_json(filename: str) -> list[dict[str, Any]]:

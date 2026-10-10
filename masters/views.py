@@ -1,11 +1,11 @@
-"""View-функции для мастеров."""
+﻿"""View-функции для мастеров."""
 
 from django.http import HttpResponse
 
 from homepage.views import page
-from models.master import Master
-from models.masters import find_master_by_id
-from models.storage import load_masters
+from domain.master import Master
+from domain.masters import find_master_by_id
+from domain.storage import load_masters
 
 
 def masters(request):

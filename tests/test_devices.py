@@ -1,7 +1,7 @@
-"""Тесты устройств и функций работы с ними."""
+﻿"""Тесты устройств и функций работы с ними."""
 
-from models.device import Laptop, Smartphone, Tablet, TV
-from models.devices import (
+from domain.device import Laptop, Smartphone, Tablet, TV
+from domain.devices import (
     add_device,
     find_device_by_id,
     filter_devices_by_type,

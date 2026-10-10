@@ -1,24 +1,24 @@
-"""Сервис отслеживания ремонта устройств. Точка входа."""
+﻿"""Сервис отслеживания ремонта устройств. Точка входа."""
 
 from decorators import log_action
-from models import (
+from domain import (
     Client,
     Device,
     Master,
     RequestStatus,
 )
-from models.devices import (
+from domain.devices import (
     add_device,
     find_device_by_id,
     show_devices,
     sort_devices_by_model,
 )
-from models.masters import (
+from domain.masters import (
     add_master,
     find_master_by_id,
     show_masters,
 )
-from models.requests import (
+from domain.requests import (
     assign_master,
     change_status,
     create_request,

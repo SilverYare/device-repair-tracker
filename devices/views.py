@@ -1,11 +1,11 @@
-"""View-функции для устройств."""
+﻿"""View-функции для устройств."""
 
 from django.http import HttpResponse
 
 from homepage.views import page
-from models.device import Device
-from models.devices import find_device_by_id
-from models.storage import load_devices
+from domain.device import Device
+from domain.devices import find_device_by_id
+from domain.storage import load_devices
 
 
 def devices(request):

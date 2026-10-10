@@ -1,17 +1,17 @@
-"""Тесты заявок и функций работы с ними."""
+﻿"""Тесты заявок и функций работы с ними."""
 
-from models.client import Client
-from models.device import Laptop
-from models.master import Master
-from models.request import Request
-from models.requests import (
+from domain.client import Client
+from domain.device import Laptop
+from domain.master import Master
+from domain.request import Request
+from domain.requests import (
     assign_master,
     change_status,
     create_request,
     get_master_workload,
     sort_requests_by_cost,
 )
-from models.status import RequestStatus
+from domain.status import RequestStatus
 
 
 def make_fixtures():
