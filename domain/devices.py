@@ -54,3 +54,10 @@ def show_devices(devices: list[Device]) -> None:
         return
     for device in devices:
         print(device)
+
+        def filter_devices_by_type(
+    devices: list[Device], device_type: str
+) -> list[Device]:
+    """Отобрать устройства по типу."""
+    device_type = device_type.strip().lower()
+    return [d for d in devices if d.device_type == device_type]
