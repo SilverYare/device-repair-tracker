@@ -304,3 +304,43 @@ python -m pytest
 "PowerShell"
 .flake8
 
+## Реализовано на ПР5 (веб-интерфейс на Django)
+
+- Создан Django-проект `config/` и четыре Django-приложения:
+  - `homepage` — главная страница;
+  - `devices` — страницы устройств;
+  - `masters` — страницы мастеров;
+  - `repairs` — страницы заявок на ремонт.
+- Настроена маршрутизация двух уровней: корневой `config/urls.py` и
+  `urls.py` в каждом приложении.
+- Реализованы view-функции:
+  - `homepage.views.index` — главная;
+  - `homepage.views.page_not_found` — общая страница 404;
+  - `devices.views.devices`, `devices.views.device_detail`;
+  - `masters.views.masters`, `masters.views.master_detail`;
+  - `repairs.views.requests_list`, `repairs.views.request_detail`.
+- Создан общий HTML-каркас `homepage.views.page()` с Bootstrap 5.3
+  и навигацией между разделами.
+- Веб-страницы используют данные ПР3: классы `Client`, `Master`,
+  `Device`, `Request` загружаются из JSON через модуль `domain/storage.py`.
+- Настроена собственная страница 404.
+- Сохранена работоспособность консольной версии (`main.py`)
+  и автоматизированных тестов (`pytest`).
+
+### Страницы проекта
+
+| URL | Назначение |
+|---|---|
+| `/` | Главная страница и навигация |
+| `/devices/` | Список устройств |
+| `/devices/<int:device_id>/` | Карточка устройства |
+| `/masters/` | Список мастеров |
+| `/masters/<int:master_id>/` | Карточка мастера |
+| `/requests/` | Список заявок на ремонт |
+| `/requests/<int:request_id>/` | Карточка заявки |
+
+### Запуск веб-версии
+
+"PowerShell"
+python manage.py migrate
+python manage.py runserver
