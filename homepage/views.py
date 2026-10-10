@@ -1,3 +1,13 @@
-from django.shortcuts import render
+"""Главная страница проекта."""
 
-# Create your views here.
+from django.http import HttpResponse
+
+
+def index(request):
+    """Приветственная страница."""
+    return HttpResponse("Сервис отслеживания ремонта устройств")
+
+
+def page_not_found(request, exception):
+    """Страница 404."""
+    return HttpResponse("Страница не найдена", status=404)
