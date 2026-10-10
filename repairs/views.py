@@ -1,3 +1,11 @@
-from django.shortcuts import render
+"""View-функции для заявок на ремонт."""
 
-# Create your views here.
+from django.http import HttpResponse
+
+
+def requests_list(request):
+    return HttpResponse("Список заявок")
+
+
+def request_detail(request, request_id):
+    return HttpResponse(f"Заявка {request_id}")
