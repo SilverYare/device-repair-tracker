@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "devices",
     "masters",
     "repairs",
+    "rest_framework",
 ]
 
 
