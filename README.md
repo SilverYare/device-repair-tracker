@@ -343,6 +343,7 @@ python -m pytest
 
 "PowerShell"
 python manage.py migrate
+<<<<<<< HEAD
 python manage.py runserver
 
 # Отчет по Практической работе №6: Django ORM и REST API
@@ -396,3 +397,6 @@ python manage.py runserver
 *   Список устройств: `http://127.0.0.1:8000/devices/`
 *   Список заявок: `http://127.0.0.1:8000/requests/`
 *   API устройств: `http://127.0.0.1:8000/devices/api/`
+=======
+python manage.py runserver
+>>>>>>> 1c1663bf8f21bcb1f80ac194793deb09e90beef7
