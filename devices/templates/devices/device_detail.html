@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Устройство{% endblock %}
+{% block content %}
+    {% if device %}
+        <h1>{{ device.model }}</h1>
+        <p><strong>Серийный номер:</strong> {{ device.serial_number }}</p>
+        <p><strong>Тип:</strong> {{ device.device_type }}</p>
+    {% else %}
+        <h1 class="text-danger">Устройство не найдено</h1>
+    {% endif %}
+    <a href="{% url 'devices:list' %}" class="btn btn-secondary mt-3">← Назад</a>
+{% endblock %}
