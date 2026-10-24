@@ -1,0 +1,12 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Главная - Ремонт устройств{% endblock %}
+
+{% block content %}
+    <h1 class="display-4">Сервис отслеживания ремонта устройств</h1>
+    <p class="lead">Учёт устройств, заявок на ремонт и работы мастеров.</p>
+    <p>Основные разделы:</p>
+    <a href="{% url 'devices:list' %}" class="btn btn-primary me-2">Устройства</a>
+    <a href="{% url 'masters:list' %}" class="btn btn-secondary me-2">Мастера</a>
+    <a href="{% url 'repairs:list' %}" class="btn btn-success">Заявки</a>
+{% endblock %}
