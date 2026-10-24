@@ -4,6 +4,8 @@ from django.urls import path
 
 from . import views
 
+app_name = "devices"
+
 urlpatterns = [
     path("", views.devices, name="devices"),
     path("<int:device_id>/", views.device_detail, name="device_detail"),
