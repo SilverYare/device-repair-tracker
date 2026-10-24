@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Устройства{% endblock %}
+{% block content %}
+    <h1>Устройства</h1>
+    <ul class="list-group">
+    {% for device in devices %}
+        <li class="list-group-item">
+            <a href="{% url 'devices:detail' device.id %}">{{ device.model }} ({{ device.serial_number }})</a>
+        </li>
+    {% empty %}
+        <li class="list-group-item">Устройства не найдены.</li>
+    {% endfor %}
+    </ul>
+{% endblock %}
