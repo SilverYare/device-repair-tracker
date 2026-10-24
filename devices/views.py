@@ -1,16 +1,15 @@
-"""View-функции для устройств."""
-
 from django.http import HttpResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from homepage.views import page
-from domain.device import Device
-from domain.devices import find_device_by_id
-from domain.storage import load_devices
+from .models import Device
+from .serializers import DeviceSerializer
 
 
 def devices(request):
-    """Список устройств."""
-    devices_list = load_devices("data/devices.json")
+    """Страница со списком устройств."""
+    devices_list = Device.objects.all()
     items = ""
     for device in devices_list:
         items += (
@@ -26,10 +25,10 @@ def devices(request):
 
 
 def device_detail(request, device_id):
-    """Страница отдельного устройства."""
-    devices_list = load_devices("data/devices.json")
-    device: Device | None = find_device_by_id(devices_list, device_id)
-    if device is None:
+    """Страница с деталями устройства."""
+    try:
+        device = Device.objects.get(id=device_id)
+    except Device.DoesNotExist:
         content = """
         <h1 class="text-danger">Устройство не найдено</h1>
         <a href="/devices/" class="btn btn-outline-secondary">
@@ -40,7 +39,7 @@ def device_detail(request, device_id):
             page("Устройство не найдено", content),
             status=404,
         )
-    cost = device.calculate_repair_cost(False)
+
     content = f"""
     <div class="card">
         <div class="card-body">
@@ -51,9 +50,6 @@ def device_detail(request, device_id):
             <p class="card-text">
                 <strong>Серийный номер:</strong> {device.serial_number}
             </p>
-            <p class="card-text">
-                <strong>Стоимость ремонта:</strong> {cost} руб.
-            </p>
             <a href="/devices/" class="btn btn-outline-secondary">
                 ← к списку устройств
             </a>
@@ -61,3 +57,11 @@ def device_detail(request, device_id):
     </div>
     """
     return HttpResponse(page(str(device), content))
+
+
+@api_view(["GET"])
+def api_devices(request):
+    """API для получения списка устройств."""
+    devices_list = Device.objects.all()
+    serializer = DeviceSerializer(devices_list, many=True)
+    return Response(serializer.data)

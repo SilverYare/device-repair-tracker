@@ -1,42 +1,25 @@
-"""View-функции для заявок на ремонт."""
-
 from django.http import HttpResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from homepage.views import page
-from domain.request import Request
-from domain.requests import find_request_by_id
-from domain.storage import (
-    load_clients,
-    load_devices,
-    load_masters,
-    load_requests,
-)
-
-DATA = "data"
-
-
-def _load_all():
-    devices = load_devices(f"{DATA}/devices.json")
-    clients = load_clients(f"{DATA}/clients.json")
-    masters = load_masters(f"{DATA}/masters.json")
-    return load_requests(
-        f"{DATA}/requests.json", devices, clients, masters
-    )
+from .models import Request
+from .serializers import RequestSerializer
 
 
 def requests_list(request):
-    """Список заявок."""
+    """Страница со списком заявок."""
+    requests_list = Request.objects.all()
     items = ""
-    for req in _load_all():
-        status_class = (
-            "bg-secondary" if req.status.code == 5 else "bg-success"
-        )
+    for req in requests_list:
+        status_class = "bg-secondary" if req.status_code == 5 else "bg-success"
         items += (
             f'<li class="list-group-item d-flex '
             f'justify-content-between align-items-center">'
             f'<a href="/requests/{req.id}/">'
-            f"{req.client.name} — {req.device.model}</a>"
-            f'<span class="badge {status_class}">{req.status}</span>'
+            f"{req.client_name} — {req.device.model}</a>"
+            f'<span class="badge {status_class}">'
+            f"Код: {req.status_code}</span>"
             f"</li>"
         )
     content = f"""
@@ -47,40 +30,38 @@ def requests_list(request):
 
 
 def request_detail(request, request_id):
-    """Страница отдельной заявки."""
-    request_obj: Request | None = find_request_by_id(
-        _load_all(), request_id
-    )
-    if request_obj is None:
+    """Страница с деталями заявки."""
+    try:
+        req = Request.objects.get(id=request_id)
+    except Request.DoesNotExist:
         content = """
         <h1 class="text-danger">Заявка не найдена</h1>
         <a href="/requests/" class="btn btn-outline-secondary">
             ← к списку заявок
         </a>
         """
-        return HttpResponse(page("Заявка не найдена", content), status=404)
-    master_text = (
-        request_obj.master.name if request_obj.master else "не назначен"
-    )
+        return HttpResponse(
+            page("Заявка не найдена", content),
+            status=404,
+        )
+
+    master_name = req.master.name if req.master else "не назначен"
     content = f"""
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Заявка №{request_obj.id}</h5>
+            <h5 class="card-title">Заявка №{req.id}</h5>
             <p class="card-text">
-                <strong>Клиент:</strong> {request_obj.client.name}
+                <strong>Клиент:</strong> {req.client_name}
             </p>
             <p class="card-text">
                 <strong>Устройство:</strong>
-                {request_obj.device.device_type} {request_obj.device.model}
+                {req.device.device_type} {req.device.model}
             </p>
             <p class="card-text">
-                <strong>Мастер:</strong> {master_text}
+                <strong>Мастер:</strong> {master_name}
             </p>
             <p class="card-text">
-                <strong>Статус:</strong> {request_obj.status}
-            </p>
-            <p class="card-text">
-                <strong>Стоимость:</strong> {request_obj.cost} руб.
+                <strong>Статус:</strong> Код {req.status_code}
             </p>
             <a href="/requests/" class="btn btn-outline-secondary">
                 ← к списку заявок
@@ -88,4 +69,20 @@ def request_detail(request, request_id):
         </div>
     </div>
     """
-    return HttpResponse(page(f"Заявка №{request_obj.id}", content))
+    return HttpResponse(page(f"Заявка №{req.id}", content))
+
+
+@api_view(["GET", "POST"])
+def api_requests(request):
+    """API для получения и создания заявок."""
+    if request.method == "GET":
+        requests_qs = Request.objects.all()
+        serializer = RequestSerializer(requests_qs, many=True)
+        return Response(serializer.data)
+
+    if request.method == "POST":
+        serializer = RequestSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)

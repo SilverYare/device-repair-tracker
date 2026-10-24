@@ -2,7 +2,9 @@
 max-line-length = 100
 exclude =
     .venv,
+    .venv-1,
+    venv,
     __pycache__,
     .pytest_cache,
-    build,
-    dist
+    migrations,
+    config
